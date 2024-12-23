@@ -23,10 +23,29 @@ public class MainClass03 {
 			
 			@Override
 			public void accept(String a) {
+				// 매개 변수에 전달되는 item 을 가지고 어떤 작업을 할지 여기에 코딩하면 된다.
 				System.err.println(a);
 			}
 		};
-				
+		/*
+		 *  ArrayList 객체의 forEach() 메소드를 호출하면서 Consumer type 객체를 전달하면
+		 *  전달된 객체의 accept() 메소드를 호출하면서
+		 *  ArrayList 객체에 저장된 item 을 순서대로 매개변수에 전달해준다.
+		 */
 		greets.forEach(con);
+		
+		System.out.println("--------");
+		
+		Consumer<String> con2 = (t)->{
+			System.out.println(t);
+		};
+		
+		greets.forEach(con2);
+		
+		System.out.println("--------");
+	
+		greets.forEach((t)->{
+			System.out.println(t);
+		});
 	}
 }
