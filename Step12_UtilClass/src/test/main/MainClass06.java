@@ -19,7 +19,19 @@ public class MainClass06 {
 		
 		//4. 반복문을 이용해서 members 에 들어있는 회원정보를 출력해보세요.
 		for(MemberDto m:members) {
-			System.out.println("번호 : ,"+m.getNum()+" 이름 : ,"+m.getName()+" 주소 : ,"+m.getAddr());
+			System.out.println("번호 : "+m.getNum()+" 이름 : "+m.getName()+" 주소 : "+m.getAddr());
 		}
+		
+		// 테스트 메소드 호출 (매개 변수에 전달할 String type 의 갯수는 유동적이다)
+		test();
+		test("kim");
+		test("kim","lee","park");
+	}
+	
+	// ... 테스트
+	
+	public static void test(String... msgs) {
+		// String...은  Strig[] type 이다
+		String[] a= msgs;
 	}
 }
