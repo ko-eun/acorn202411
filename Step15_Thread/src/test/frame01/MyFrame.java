@@ -42,7 +42,7 @@ public class MyFrame extends JFrame{
 			//WorkThread 클래스로 객체를 생성해서 참조값을 얻어낸 다음
 			WorkThread t = new WorkThread();
 			//start() 메소드를 호출해서 새로운 스레드가 시작되도록 한다.
-			// t.start();
+			 t.start();
 		});
 		
 	}
