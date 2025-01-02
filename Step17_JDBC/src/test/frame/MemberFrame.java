@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -20,7 +22,8 @@ import javax.swing.table.DefaultTableModel;
 import test.dao.MemberDao;
 import test.dto.MemberDto;
 
-public class MemberFrame extends JFrame implements ActionListener{
+public class MemberFrame extends JFrame 
+					implements ActionListener, PropertyChangeListener{
 	//필요한 필드 정의하기
 	JTextField inputName, inputAddr;
 	DefaultTableModel model;
@@ -67,7 +70,18 @@ public class MemberFrame extends JFrame implements ActionListener{
 		//테이블의 칼럼명을 배열로 미리 준비한다.
 		String[] colNames= {"번호", "이름", "주소"};
 		//테이블에 연결할 모델 객체
-		model=new DefaultTableModel();
+		model=new DefaultTableModel() {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				// 0 번째 칼럼은 false 를 리턴해서 수정 불가능하게 만들고
+				if(column == 0) {
+					return false;
+				}else {// 그 이외의 경우에는 true 를 리턴해서 수정 가능하게 만든다.
+					return true;
+				}
+			}
+		};
+	
 		model.setColumnIdentifiers(colNames);
 		model.setRowCount(0);
 		//모델을 테이블에 연결
@@ -82,6 +96,9 @@ public class MemberFrame extends JFrame implements ActionListener{
 	    table.getTableHeader().setFont(new Font("Sans-serif", Font.BOLD, 18)); 
 	    table.setFont(new Font("Sans-serif", Font.PLAIN, 16)); // 데이터 글자 크기 14
 	    table.setRowHeight(25); // 각 행의 높이를 조정
+	    
+	    // 테이블 값이 바뀌었는지 감시할 리스너 등록
+	    table.addPropertyChangeListener(this);
 	}//생성자 
 	
 	public static void main(String[] args) {
@@ -140,6 +157,34 @@ public class MemberFrame extends JFrame implements ActionListener{
 	    	//테이블에 연결된 모델에 추가하기
 	    	model.addRow(rowData);
 	    }
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		/*
+		 * 	property name 이 "tableCellEditor" 이고
+		 *  table 이 수정 중이 아닐 때
+		 *  현재 포커스가 있는 곳의 정보를 모두 읽어와서 DB 에 수정 반영하기
+		 */
+		if(evt.getPropertyName().equals("tableCellEditor") && !table.isEditing()) {
+			// 현재 포커스가 있는 row 의 정보를 DB 에 수정 반영한다.
+			// 변화된 값을 읽어와서 DB 에 반영한다.
+			// 수정된 칼럼에 있는 row 전체의 값을 읽어온다.
+			int selectedIndex=table.getSelectedRow();
+			int num=(int)model.getValueAt(selectedIndex, 0);
+			String name=(String)model.getValueAt(selectedIndex, 1);
+			String addr=(String)model.getValueAt(selectedIndex, 2);
+			//수정할 회원의 정보를 MemberDto 객체에 담고 
+			MemberDto dto=new MemberDto(num, name, addr);
+			dto.setNum(num);
+			dto.setName(name);
+			dto.setAddr(addr);
+			//DB에 저장하기 
+			new MemberDao().update(dto);
+			//선택된 포커스 clear
+			table.clearSelection();
+	
+		}
 	}
 
 }
